@@ -64,7 +64,7 @@ userSchema.pre('save', async function() {
   // Update timestamp
   this.updatedAt = Date.now();
   
-  // Hash password if modified
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
     return;
   }
