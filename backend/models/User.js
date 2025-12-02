@@ -64,14 +64,30 @@ userSchema.pre('save', async function(next) {
   // Update timestamp
   this.updatedAt = Date.now();
   
-  // Hash password if modified
+  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
-    return next();
+    // Make sure to call next() even if we don't hash the password
+    if (typeof next === 'function') {
+      return next();
+    }
+    return;
   }
   
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    // Generate a salt and hash the password
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    
+    // Call next only if it's a function
+    if (typeof next === 'function') {
+      next();
+    }
+  } catch (error) {
+    // Call next with error only if it's a function
+    if (typeof next === 'function') {
+      next(error);
+    }
+  }
 });
 
 // Method to compare passwords
