@@ -373,3 +373,5 @@ This project is licensed under the ISC License.
 ---
 
 **Made with 💚 for a sustainable future**
+#   E c o - f r i e n d l y -  
+ 
