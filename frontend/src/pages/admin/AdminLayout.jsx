@@ -1,5 +1,5 @@
 import { NavLink, Outlet, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Star, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Star, Users, LogOut, TrendingUp } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -14,6 +14,8 @@ const AdminLayout = () => {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
+    { name: 'Customers', path: '/admin/customers', icon: Users },
+    { name: 'Sales Report', path: '/admin/sales', icon: TrendingUp },
     { name: 'Reviews', path: '/admin/reviews', icon: Star },
   ];
 

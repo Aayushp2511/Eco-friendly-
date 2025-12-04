@@ -11,7 +11,8 @@ const {
   updateOrderStatus,
   getAllReviews,
   deleteReview,
-  getAllUsers
+  getAllUsers,
+  updateUserRole
 } = require('../controllers/adminController');
 const { protect, admin } = require('../middleware/auth');
 
@@ -43,5 +44,6 @@ router.delete('/reviews/:productId/:reviewId', deleteReview);
 
 // Users
 router.get('/users', getAllUsers);
+router.put('/users/:id/role', updateUserRole);
 
 module.exports = router;
