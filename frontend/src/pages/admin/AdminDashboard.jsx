@@ -5,13 +5,14 @@ import {
   Package,
   ShoppingCart,
   Users,
-  DollarSign,
   TrendingUp,
   AlertCircle,
   Clock,
-  CheckCircle
+  CheckCircle,
+  IndianRupee
 } from 'lucide-react';
 import api from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Loading from '../../components/common/Loading';
 
 const AdminDashboard = () => {
@@ -53,8 +54,8 @@ const AdminDashboard = () => {
     },
     {
       title: 'Total Revenue',
-      value: `$${stats?.totalRevenue?.toFixed(2) || 0}`,
-      icon: DollarSign,
+      value: formatCurrency(stats?.totalRevenue || 0),
+      icon: IndianRupee,
       color: 'bg-yellow-500',
       textColor: 'text-yellow-600',
       bgColor: 'bg-yellow-50'
@@ -134,7 +135,7 @@ const AdminDashboard = () => {
                     {order.user?.name || 'N/A'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    ${order.totalPrice.toFixed(2)}
+                    {formatCurrency(order.totalPrice)}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${

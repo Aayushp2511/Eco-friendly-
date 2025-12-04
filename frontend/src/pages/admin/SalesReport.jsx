@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, DollarSign, ShoppingCart, CreditCard } from 'lucide-react';
+import { TrendingUp, IndianRupee, ShoppingCart, CreditCard } from 'lucide-react';
 import api from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Loading from '../../components/common/Loading';
 
 const COLORS = ['#2FB973', '#4ade80', '#60a5fa', '#f87171', '#fbbf24'];
@@ -66,10 +67,10 @@ const SalesReport = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-800">${stats?.totalRevenue?.toFixed(2) || 0}</p>
+              <p className="text-2xl font-bold text-gray-800">{formatCurrency(stats?.totalRevenue || 0)}</p>
             </div>
             <div className="p-3 bg-green-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-green-600" />
+              <IndianRupee className="h-6 w-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -91,7 +92,7 @@ const SalesReport = () => {
             <div>
               <p className="text-sm text-gray-600 mb-1">Avg. Order Value</p>
               <p className="text-2xl font-bold text-gray-800">
-                {stats?.totalOrders ? `$${(stats.totalRevenue / stats.totalOrders).toFixed(2)}` : '$0.00'}
+                {stats?.totalOrders ? formatCurrency(stats.totalRevenue / stats.totalOrders) : formatCurrency(0)}
               </p>
             </div>
             <div className="p-3 bg-purple-100 rounded-lg">
@@ -124,9 +125,9 @@ const SalesReport = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
-                <Tooltip formatter={(value) => [`$${value}`, 'Sales']} />
+                <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
                 <Legend />
-                <Bar dataKey="sales" name="Sales ($)" fill="#2FB973" />
+                <Bar dataKey="sales" name="Sales" fill="#2FB973" />
                 <Bar dataKey="orders" name="Orders" fill="#60a5fa" />
               </BarChart>
             </ResponsiveContainer>
@@ -153,7 +154,7 @@ const SalesReport = () => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`$${value}`, 'Sales']} />
+                <Tooltip formatter={(value) => [formatCurrency(value), 'Sales']} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -180,35 +181,35 @@ const SalesReport = () => {
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">Eco Water Bottle</td>
                 <td className="px-6 py-4 text-sm text-gray-600">Reusable Products</td>
                 <td className="px-6 py-4 text-sm text-gray-600">1,245</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">$12,450.00</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(12450)}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">4.8 ★</td>
               </tr>
               <tr className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">Organic Cotton T-Shirt</td>
                 <td className="px-6 py-4 text-sm text-gray-600">Sustainable Fashion</td>
                 <td className="px-6 py-4 text-sm text-gray-600">980</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">$9,800.00</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(9800)}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">4.6 ★</td>
               </tr>
               <tr className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">Bamboo Toothbrush Set</td>
                 <td className="px-6 py-4 text-sm text-gray-600">Zero Waste</td>
                 <td className="px-6 py-4 text-sm text-gray-600">756</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">$3,780.00</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(3780)}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">4.7 ★</td>
               </tr>
               <tr className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">Solar Charger</td>
                 <td className="px-6 py-4 text-sm text-gray-600">Green Tech</td>
                 <td className="px-6 py-4 text-sm text-gray-600">523</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">$7,845.00</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(7845)}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">4.5 ★</td>
               </tr>
               <tr className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">Recycled Paper Notebook</td>
                 <td className="px-6 py-4 text-sm text-gray-600">Eco-Friendly Home</td>
                 <td className="px-6 py-4 text-sm text-gray-600">412</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">$2,060.00</td>
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(2060)}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">4.4 ★</td>
               </tr>
             </tbody>
