@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Eye, Shield, User, Mail, Calendar, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Button from '../../components/common/Button';
 import Loading from '../../components/common/Loading';
 

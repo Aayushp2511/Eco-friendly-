@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Eye, Package, Truck, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Button from '../../components/common/Button';
 import Loading from '../../components/common/Loading';
 
@@ -130,7 +131,7 @@ const AdminOrders = () => {
                     {order.items?.length || 0}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    ${order.totalPrice?.toFixed(2)}
+                    {formatCurrency(order.totalPrice)}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <div>
@@ -222,7 +223,7 @@ const AdminOrders = () => {
                         <p className="font-medium text-gray-800">{item.name}</p>
                         <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium text-gray-800">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-medium text-gray-800">{formatCurrency(item.price * item.quantity)}</p>
                     </div>
                   ))}
                 </div>
@@ -233,19 +234,19 @@ const AdminOrders = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Items Price:</span>
-                    <span>${selectedOrder.itemsPrice?.toFixed(2)}</span>
+                    <span>{formatCurrency(selectedOrder.itemsPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping:</span>
-                    <span>${selectedOrder.shippingPrice?.toFixed(2)}</span>
+                    <span>{formatCurrency(selectedOrder.shippingPrice)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax:</span>
-                    <span>${selectedOrder.taxPrice?.toFixed(2)}</span>
+                    <span>{formatCurrency(selectedOrder.taxPrice)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
-                    <span>${selectedOrder.totalPrice?.toFixed(2)}</span>
+                    <span>{formatCurrency(selectedOrder.totalPrice)}</span>
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit, Trash2, Image as ImageIcon, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Loading from '../../components/common/Loading';
@@ -219,7 +220,7 @@ const AdminProducts = () => {
               <h3 className="font-semibold text-gray-800 mb-1">{product.name}</h3>
               <p className="text-sm text-gray-600 mb-2">{product.category}</p>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-lg font-bold text-primary">${product.price}</span>
+                <span className="text-lg font-bold text-primary">{formatCurrency(product.price)}</span>
                 <span className="text-sm text-gray-500">Stock: {product.stock}</span>
               </div>
               <div className="flex space-x-2">
@@ -291,7 +292,7 @@ const AdminProducts = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Price ($)"
+                    label="Price (₹)"
                     type="number"
                     step="0.01"
                     required
@@ -299,7 +300,7 @@ const AdminProducts = () => {
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                   />
                   <Input
-                    label="Original Price ($)"
+                    label="Original Price (₹)"
                     type="number"
                     step="0.01"
                     value={formData.originalPrice}
