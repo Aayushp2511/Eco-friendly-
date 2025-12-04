@@ -216,6 +216,13 @@ const Navbar = () => {
                   >
                     Profile
                   </Link>
+                  <Link
+                    to="/wishlist"
+                    className="block py-2 text-gray-700 hover:text-primary font-medium transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Wishlist
+                  </Link>
                   {isAdmin && (
                     <Link
                       to="/admin"
