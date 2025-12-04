@@ -124,7 +124,10 @@ const orderSchema = new mongoose.Schema({
 // Update timestamp on save
 orderSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
-  next();
+  // Check if next is a function before calling it
+  if (typeof next === 'function') {
+    next();
+  }
 });
 
 module.exports = mongoose.model('Order', orderSchema);

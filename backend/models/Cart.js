@@ -49,7 +49,10 @@ cartSchema.pre('save', function(next) {
   this.totalItems = this.items.reduce((acc, item) => acc + item.quantity, 0);
   this.totalPrice = this.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   this.updatedAt = Date.now();
-  next();
+  // Check if next is a function before calling it
+  if (typeof next === 'function') {
+    next();
+  }
 });
 
 module.exports = mongoose.model('Cart', cartSchema);
