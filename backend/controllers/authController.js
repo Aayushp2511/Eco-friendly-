@@ -20,7 +20,11 @@ exports.register = async (req, res) => {
     }
 
     console.log('Creating user in MongoDB...');
-    let supabaseUserId = null;
+    let userData = {
+      name,
+      email,
+      password,
+    };
 
     // Only use Supabase if properly configured
     if (supabase) {
@@ -39,7 +43,10 @@ exports.register = async (req, res) => {
         console.error('Supabase signup error:', supabaseError.message);
         // Don't fail registration if Supabase is not configured
       } else {
-        supabaseUserId = supabaseData.user?.id;
+        const supabaseUserId = supabaseData.user?.id;
+        if (supabaseUserId) {
+          userData.supabaseId = supabaseUserId;
+        }
         console.log('Supabase user created:', supabaseUserId);
       }
     } else {
@@ -47,13 +54,8 @@ exports.register = async (req, res) => {
     }
 
     // Create user in MongoDB
-    console.log('About to create user in MongoDB...');
-    const user = await User.create({
-      name,
-      email,
-      password,
-      supabaseId: supabaseUserId,
-    });
+    console.log('About to create user in MongoDB with data:', userData);
+    const user = await User.create(userData);
     console.log('User created successfully:', user._id);
 
     const token = generateToken(user._id);

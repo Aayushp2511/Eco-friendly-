@@ -29,17 +29,21 @@ const createTestUser = async () => {
       process.exit(0);
     }
     
-    // Create new user
+    // Create new user without explicitly setting supabaseId
+    // This will ensure supabaseId is not included in the document
+    // and thus won't cause duplicate key issues with sparse index
     const user = await User.create({
       name: 'Test User',
       email: 'test@example.com',
       password: 'password123',
+      // Note: Not including supabaseId to avoid null values
     });
     
     console.log('Test user created successfully:');
     console.log('Name:', user.name);
     console.log('Email:', user.email);
     console.log('ID:', user._id);
+    console.log('supabaseId:', user.supabaseId);
     
     process.exit(0);
   } catch (error) {
