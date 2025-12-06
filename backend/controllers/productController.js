@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const imagekit = require('../config/imagekit');
 const { supabaseAdmin } = require('../config/supabase');
 
 // @desc    Get all products with filters
@@ -245,7 +246,7 @@ exports.addReview = async (req, res) => {
   }
 };
 
-// @desc    Upload product image to Supabase
+// @desc    Upload image
 // @route   POST /api/products/upload
 // @access  Private/Admin
 exports.uploadImage = async (req, res) => {
@@ -257,31 +258,21 @@ exports.uploadImage = async (req, res) => {
       });
     }
 
+    // Upload to ImageKit
     const fileName = `${Date.now()}_${req.file.originalname}`;
 
-    const { data, error } = await supabaseAdmin.storage
-      .from('products')
-      .upload(fileName, req.file.buffer, {
-        contentType: req.file.mimetype,
-        cacheControl: '3600',
-      });
-
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    }
-
-    const { data: urlData } = supabaseAdmin.storage
-      .from('products')
-      .getPublicUrl(fileName);
+    const result = await imagekit.upload({
+      file: req.file.buffer,
+      fileName: fileName,
+      folder: '/products',
+      useUniqueFileName: true
+    });
 
     res.json({
       success: true,
       data: {
-        url: urlData.publicUrl,
-        publicId: fileName,
+        url: result.url,
+        publicId: result.fileId,
       },
     });
   } catch (error) {

@@ -94,7 +94,7 @@ const Cart = () => {
 
                     <div className="ml-4 flex-grow">
                       <h3 className="text-lg font-semibold text-gray-800">{item.product.name}</h3>
-                      <p className="text-green font-medium">${item.product.price.toFixed(2)}</p>
+                      <p className="text-green font-medium">₹{item.product.price.toFixed(2)}</p>
                       <p className="text-sm text-gray-500">{item.product.category}</p>
                     </div>
 
@@ -118,7 +118,7 @@ const Cart = () => {
                       </div>
 
                       <div className="font-semibold text-gray-800">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        ₹{(item.product.price * item.quantity).toFixed(2)}
                       </div>
 
                       <button
@@ -155,23 +155,23 @@ const Cart = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium">₹{subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">${shipping.toFixed(2)}</span>
+                    <span className="font-medium">₹{shipping.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax</span>
-                    <span className="font-medium">${tax.toFixed(2)}</span>
+                    <span className="font-medium">₹{tax.toFixed(2)}</span>
                   </div>
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>₹{total.toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -180,7 +180,7 @@ const Cart = () => {
                   </Button>
 
                   <div className="text-center text-sm text-gray-500 mt-4">
-                    Free shipping on orders over $50
+                    Free shipping on orders over ₹50
                   </div>
                 </div>
               </div>
