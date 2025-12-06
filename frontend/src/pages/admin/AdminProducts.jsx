@@ -93,20 +93,18 @@ const AdminProducts = () => {
 
     for (const file of files) {
       try {
-        const reader = new FileReader();
-        const base64 = await new Promise((resolve) => {
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
+        const formData = new FormData();
+        formData.append('image', file);
 
-        const res = await api.post('/admin/products/upload', {
-          image: base64,
-          fileName: file.name
+        const res = await api.post('/admin/products/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
         });
 
         uploadedImages.push({
           url: res.data.data.url,
-          publicId: res.data.data.publicId
+          publicId: res.data.data.fileId
         });
       } catch (error) {
         toast.error(`Failed to upload ${file.name}`);

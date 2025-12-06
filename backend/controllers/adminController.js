@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const imagekit = require('../config/imagekit');
 const { supabase } = require('../config/supabase');
 
 // @desc    Get admin dashboard stats
@@ -174,17 +175,14 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    // Delete images from Supabase if they exist
+    // Delete images from ImageKit if they exist
     if (product.images && product.images.length > 0) {
       for (const image of product.images) {
         if (image.publicId) {
           try {
-            const { error } = await supabase.storage
-              .from('products')
-              .remove([image.publicId]);
-            if (error) console.error('Error deleting image:', error);
+            await imagekit.deleteFile(image.publicId);
           } catch (err) {
-            console.error('Supabase delete error:', err);
+            console.error('ImageKit delete error:', err);
           }
         }
       }
@@ -209,49 +207,36 @@ exports.deleteProduct = async (req, res) => {
 // @access  Private/Admin
 exports.uploadProductImage = async (req, res) => {
   try {
-    const { image, fileName } = req.body;
-
-    if (!image) {
+    // Check if file was uploaded via Multer
+    if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No image provided'
+        message: 'No image file provided'
       });
     }
 
-    // Upload to Supabase Storage
-    const fileExt = fileName?.split('.').pop() || 'jpg';
-    const filePath = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    // Upload to ImageKit
+    const fileName = `${Date.now()}_${req.file.originalname}`;
 
-    const { data, error } = await supabase.storage
-      .from('products')
-      .upload(filePath, image, {
-        contentType: `image/${fileExt}`,
-        upsert: false
-      });
-
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.message
-      });
-    }
-
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('products')
-      .getPublicUrl(filePath);
+    const result = await imagekit.upload({
+      file: req.file.buffer,
+      fileName: fileName,
+      folder: '/products',
+      useUniqueFileName: true
+    });
 
     res.json({
       success: true,
       data: {
-        url: publicUrl,
-        publicId: filePath
+        url: result.url,
+        fileId: result.fileId
       }
     });
   } catch (error) {
+    console.error('Image upload error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to upload image'
     });
   }
 };
