@@ -23,8 +23,9 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const response = await api.get('/cart');
       setCart(response.data.data);
+      console.log(response.data)
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error('Error fetching cart:', error.message);
     } finally {
       setLoading(false);
     }
