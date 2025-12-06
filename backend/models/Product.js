@@ -98,7 +98,7 @@ const productSchema = new mongoose.Schema({
 // Update timestamp on save
 productSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
-  next();
+  // next();
 });
 
 // Calculate average rating
