@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, User, Heart, Menu, X, Leaf, LogOut, LayoutDashboard, RefreshCw } from 'lucide-react';
+import { ShoppingCart, User, Heart, Menu, X, Leaf, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Button from '../common/Button';
@@ -10,19 +10,13 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const { cartItemsCount, fetchCart } = useCart();
+  const { cartItemsCount } = useCart();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
     setUserMenuOpen(false);
-  };
-
-  const handleRefreshCart = () => {
-    if (isAuthenticated) {
-      fetchCart();
-    }
   };
 
   const navLinks = [
@@ -66,35 +60,24 @@ const Navbar = () => {
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <div className="flex items-center">
-              <Link to="/cart" className="relative">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 hover:bg-mint rounded-full transition-colors"
-                >
-                  <ShoppingCart className="h-6 w-6 text-gray-700" />
-                  {cartItemsCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 bg-green text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-                    >
-                      {cartItemsCount}
-                    </motion.span>
-                  )}
-                </motion.div>
-              </Link>
-              {isAuthenticated && (
-                <button 
-                  onClick={handleRefreshCart}
-                  className="ml-1 p-2 text-gray-500 hover:text-primary"
-                  title="Refresh cart"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+            <Link to="/cart" className="relative">
+              <motion.div
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2 hover:bg-mint rounded-full transition-colors"
+              >
+                <ShoppingCart className="h-6 w-6 text-gray-700" />
+                {cartItemsCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-green text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                  >
+                    {cartItemsCount}
+                  </motion.span>
+                )}
+              </motion.div>
+            </Link>
 
             {/* Wishlist */}
             {isAuthenticated && (

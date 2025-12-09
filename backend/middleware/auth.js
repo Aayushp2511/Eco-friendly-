@@ -17,8 +17,12 @@ exports.protect = async (req, res, next) => {
   }
 
   try {
+    console.log('Verifying token:', token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Decoded token:', decoded);
+    
     req.user = await User.findById(decoded.id).select('-password');
+    console.log('Found user:', req.user);
 
     if (!req.user) {
       return res.status(401).json({
@@ -29,6 +33,7 @@ exports.protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error('Auth error:', error);
     return res.status(401).json({
       success: false,
       message: 'Not authorized, token failed',

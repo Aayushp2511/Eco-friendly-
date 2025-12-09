@@ -1,91 +1,55 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
-const Product = require('../models/Product');
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
 exports.createOrder = async (req, res) => {
   try {
-    const {
-      items,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      shippingPrice,
-      taxPrice,
-      totalPrice,
-    } = req.body;
-
-    if (!items || items.length === 0) {
+    const { shippingAddress, paymentMethod } = req.body;
+    
+    // Get user's cart
+    const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+    
+    if (!cart || cart.items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'No order items',
+        message: 'Cart is empty',
       });
     }
-
-    // Verify stock availability and update stock
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: `Product not found: ${item.name}`,
-        });
-      }
-
-      if (product.stock < item.quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for ${product.name}`,
-        });
-      }
-
-      // Reduce stock
-      product.stock -= item.quantity;
-      await product.save();
-    }
-
+    
+    // Create order items from cart items
+    const orderItems = cart.items.map(item => ({
+      product: item.product._id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+    
+    // Calculate prices
+    const itemsPrice = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const shippingPrice = itemsPrice > 100 ? 0 : 10;
+    const taxPrice = Number((0.08 * itemsPrice).toFixed(2));
+    const totalPrice = itemsPrice + shippingPrice + taxPrice;
+    
+    // Create order
     const order = await Order.create({
       user: req.user._id,
-      items,
+      items: orderItems,
       shippingAddress,
       paymentMethod,
       itemsPrice,
-      shippingPrice,
       taxPrice,
+      shippingPrice,
       totalPrice,
     });
-
+    
     // Clear user's cart
-    await Cart.findOneAndUpdate(
-      { user: req.user._id },
-      { items: [], totalItems: 0, totalPrice: 0 }
-    );
-
+    cart.items = [];
+    await cart.save();
+    
     res.status(201).json({
       success: true,
       data: order,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// @desc    Get user orders
-// @route   GET /api/orders/myorders
-// @access  Private
-exports.getMyOrders = async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
-
-    res.json({
-      success: true,
-      count: orders.length,
-      data: orders,
     });
   } catch (error) {
     res.status(500).json({
@@ -101,22 +65,22 @@ exports.getMyOrders = async (req, res) => {
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate('user', 'name email');
-
+    
     if (!order) {
       return res.status(404).json({
         success: false,
         message: 'Order not found',
       });
     }
-
-    // Check if user owns this order or is admin
+    
+    // Check if user is owner of order or admin
     if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized to view this order',
       });
     }
-
+    
     res.json({
       success: true,
       data: order,
@@ -129,34 +93,16 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// @desc    Get all orders (Admin)
-// @route   GET /api/orders
-// @access  Private/Admin
-exports.getAllOrders = async (req, res) => {
+// @desc    Get logged in user orders
+// @route   GET /api/orders/myorders
+// @access  Private
+exports.getMyOrders = async (req, res) => {
   try {
-    const { status, page = 1, limit = 10 } = req.query;
-
-    const query = {};
-    if (status) {
-      query.orderStatus = status;
-    }
-
-    const skip = (page - 1) * limit;
-
-    const orders = await Order.find(query)
-      .populate('user', 'name email')
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(skip);
-
-    const total = await Order.countDocuments(query);
-
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
+    
     res.json({
       success: true,
       count: orders.length,
-      total,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
       data: orders,
     });
   } catch (error) {
@@ -167,43 +113,17 @@ exports.getAllOrders = async (req, res) => {
   }
 };
 
-// @desc    Update order status (Admin)
-// @route   PUT /api/orders/:id/status
+// @desc    Get all orders
+// @route   GET /api/orders
 // @access  Private/Admin
-exports.updateOrderStatus = async (req, res) => {
+exports.getOrders = async (req, res) => {
   try {
-    const { orderStatus, paymentStatus } = req.body;
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found',
-      });
-    }
-
-    if (orderStatus) {
-      order.orderStatus = orderStatus;
-      if (orderStatus === 'Delivered') {
-        order.isDelivered = true;
-        order.deliveredAt = Date.now();
-      }
-    }
-
-    if (paymentStatus) {
-      order.paymentStatus = paymentStatus;
-      if (paymentStatus === 'Paid') {
-        order.isPaid = true;
-        order.paidAt = Date.now();
-      }
-    }
-
-    await order.save();
-
+    const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
+    
     res.json({
       success: true,
-      data: order,
+      count: orders.length,
+      data: orders,
     });
   } catch (error) {
     res.status(500).json({
@@ -213,25 +133,65 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// @desc    Delete order (Admin)
-// @route   DELETE /api/orders/:id
+// @desc    Update order to paid
+// @route   PUT /api/orders/:id/pay
 // @access  Private/Admin
-exports.deleteOrder = async (req, res) => {
+exports.updateOrderToPaid = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-
+    
     if (!order) {
       return res.status(404).json({
         success: false,
         message: 'Order not found',
       });
     }
-
-    await order.deleteOne();
-
+    
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    order.paymentResult = {
+      id: req.body.id,
+      status: req.body.status,
+      updateTime: req.body.updateTime,
+      emailAddress: req.body.emailAddress,
+    };
+    
+    const updatedOrder = await order.save();
+    
     res.json({
       success: true,
-      message: 'Order deleted successfully',
+      data: updatedOrder,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Update order to delivered
+// @route   PUT /api/orders/:id/deliver
+// @access  Private/Admin
+exports.updateOrderToDelivered = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+    
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+    
+    const updatedOrder = await order.save();
+    
+    res.json({
+      success: true,
+      data: updatedOrder,
     });
   } catch (error) {
     res.status(500).json({

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import Button from '../components/common/Button';
@@ -8,6 +8,7 @@ import Button from '../components/common/Button';
 const Cart = () => {
   const { cart, updateCartItem, removeFromCart, clearCart } = useCart();
   const [updatingItemId, setUpdatingItemId] = useState(null);
+  const navigate = useNavigate();
 
   const handleUpdateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -177,7 +178,11 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button size="lg" className="w-full mt-6">
+                  <Button 
+                    size="lg" 
+                    className="w-full mt-6"
+                    onClick={() => navigate('/checkout')}
+                  >
                     Proceed to Checkout
                   </Button>
 

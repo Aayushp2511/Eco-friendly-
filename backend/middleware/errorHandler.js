@@ -1,5 +1,6 @@
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Global error handler:', err);
+  console.error('Error stack:', err.stack);
 
   // Mongoose bad ObjectId
   if (err.name === 'CastError') {

@@ -11,6 +11,7 @@ import Shop from './pages/Shop';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
 import ProductDetail from './pages/ProductDetail';
@@ -94,6 +95,15 @@ function App() {
                     <Navbar />
                     <main className="flex-grow">
                       <Cart />
+                    </main>
+                    <Footer />
+                  </div>
+                } />
+                <Route path="/checkout" element={
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <Checkout />
                     </main>
                     <Footer />
                   </div>

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Mail, Phone, MapPin, Edit3, Save, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Edit3, Save, X, ShoppingBag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 import Button from '../components/common/Button';
 
 const Profile = () => {
   const { user, updateUserProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -35,6 +38,9 @@ const Profile = () => {
           country: user.address?.country || ''
         }
       });
+      
+      // Fetch user orders
+      fetchOrders();
     }
   }, [user]);
 
@@ -55,6 +61,18 @@ const Profile = () => {
         ...prev,
         [name]: value
       }));
+    }
+  };
+  
+  const fetchOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const response = await api.get('/orders/myorders');
+      setOrders(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 
@@ -171,6 +189,49 @@ const Profile = () => {
                       )}
                     </div>
                   </div>
+                </div>
+                
+                {/* Orders Section */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">Order History</h3>
+                    <ShoppingBag className="h-5 w-5 text-green" />
+                  </div>
+                  
+                  {ordersLoading ? (
+                    <div className="flex justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green"></div>
+                    </div>
+                  ) : orders.length > 0 ? (
+                    <div className="space-y-4">
+                      {orders.map((order) => (
+                        <div key={order._id} className="bg-white rounded-lg p-4 border border-gray-200">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium text-gray-800">Order #{order._id.substring(0, 8)}</p>
+                              <p className="text-sm text-gray-600">
+                                {new Date(order.createdAt).toLocaleDateString()} • {order.items.length} items
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">₹{order.totalPrice.toFixed(2)}</p>
+                              <p className="text-sm text-gray-600">
+                                {order.isDelivered ? (
+                                  <span className="text-green">Delivered</span>
+                                ) : order.isPaid ? (
+                                  <span className="text-blue">Processing</span>
+                                ) : (
+                                  <span className="text-orange">Pending Payment</span>
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">No orders yet</p>
+                  )}
                 </div>
               </div>
             ) : (
