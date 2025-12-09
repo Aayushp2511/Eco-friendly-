@@ -5,34 +5,77 @@ const Cart = require('../models/Cart');
 // @route   POST /api/orders
 // @access  Private
 exports.createOrder = async (req, res) => {
+  console.log('=== CREATE ORDER FUNCTION CALLED ===');
+  console.log('Request method:', req.method);
+  console.log('Request URL:', req.url);
+  console.log('Request headers:', req.headers);
+  
   try {
     const { shippingAddress, paymentMethod } = req.body;
+    
+    console.log('=== ORDER CREATION STARTED ===');
+    console.log('User ID:', req.user._id);
+    console.log('Request body:', req.body);
     
     // Get user's cart
     const cart = await Cart.findOne({ user: req.user._id }).populate('items.product');
     
-    if (!cart || cart.items.length === 0) {
+    console.log('Found cart:', JSON.stringify(cart, null, 2));
+    
+    if (!cart) {
+      console.log('No cart found for user');
+      return res.status(400).json({
+        success: false,
+        message: 'Cart not found',
+      });
+    }
+    
+    if (!cart.items || cart.items.length === 0) {
+      console.log('Cart is empty');
       return res.status(400).json({
         success: false,
         message: 'Cart is empty',
       });
     }
     
+    console.log('Cart items count:', cart.items.length);
+    
     // Create order items from cart items
-    const orderItems = cart.items.map(item => ({
-      product: item.product._id,
-      quantity: item.quantity,
-      price: item.price,
-    }));
+    const orderItems = cart.items.map(item => {
+      console.log('Processing cart item:', item);
+      return {
+        product: item.product._id,
+        quantity: item.quantity,
+        price: item.price,
+      };
+    });
+    
+    console.log('Processed order items:', orderItems);
+    
+    // Check if we have any order items
+    if (orderItems.length === 0) {
+      console.log('No order items after processing');
+      return res.status(400).json({
+        success: false,
+        message: 'No order items',
+      });
+    }
     
     // Calculate prices
-    const itemsPrice = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const itemsPrice = cart.items.reduce((acc, item) => {
+      const itemTotal = (item.price || 0) * (item.quantity || 0);
+      console.log(`Item total for ${item.product?.name || item.product}:`, itemTotal);
+      return acc + itemTotal;
+    }, 0);
+    
     const shippingPrice = itemsPrice > 100 ? 0 : 10;
     const taxPrice = Number((0.08 * itemsPrice).toFixed(2));
     const totalPrice = itemsPrice + shippingPrice + taxPrice;
     
-    // Create order
-    const order = await Order.create({
+    console.log('Calculated prices:', { itemsPrice, shippingPrice, taxPrice, totalPrice });
+    
+    // Prepare order data
+    const orderData = {
       user: req.user._id,
       items: orderItems,
       shippingAddress,
@@ -41,7 +84,15 @@ exports.createOrder = async (req, res) => {
       taxPrice,
       shippingPrice,
       totalPrice,
-    });
+    };
+    
+    console.log('Order data to create:', JSON.stringify(orderData, null, 2));
+    
+    // Create order
+    const order = new Order(orderData);
+    const savedOrder = await order.save();
+    
+    console.log('Created order:', savedOrder._id);
     
     // Clear user's cart
     cart.items = [];
@@ -49,9 +100,18 @@ exports.createOrder = async (req, res) => {
     
     res.status(201).json({
       success: true,
-      data: order,
+      data: savedOrder,
     });
   } catch (error) {
+    console.error('=== ERROR CREATING ORDER ===');
+    console.error('Error creating order:', error);
+    if (error.name === 'ValidationError') {
+      console.error('Validation errors:', error.errors);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error: ' + Object.values(error.errors).map(err => err.message).join(', '),
+      });
+    }
     res.status(500).json({
       success: false,
       message: error.message,

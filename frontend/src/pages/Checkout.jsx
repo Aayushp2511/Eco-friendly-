@@ -67,10 +67,13 @@ const Checkout = () => {
       if (response.data.success) {
         alert('Order placed successfully! Thank you for your purchase.');
         navigate('/profile');
+      } else {
+        alert(`Error placing order: ${response.data.message || 'Unknown error'}. Please try again.`);
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Error placing order. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred';
+      alert(`Error placing order: ${errorMessage}. Please try again.`);
     }
   };
 

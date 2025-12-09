@@ -3,11 +3,13 @@ import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext';
 import toast from 'react-hot-toast';
 import Button from '../common/Button';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
   const discount = product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -61,16 +63,24 @@ const ProductCard = ({ product }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-red-50 transition-colors"
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
               if (!isAuthenticated) {
                 toast.error('Please login to add to wishlist');
                 return;
               }
-              toast.success('Added to wishlist!');
+              try {
+                await addToWishlist(product._id);
+              } catch (error) {
+                console.error('Error adding to wishlist:', error);
+              }
             }}
           >
-            <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
+            {isInWishlist(product._id) ? (
+              <Heart className="h-5 w-5 text-red-500 fill-current" />
+            ) : (
+              <Heart className="h-5 w-5 text-gray-600 hover:text-red-500" />
+            )}
           </motion.button>
 
           {/* Out of Stock Overlay */}
