@@ -28,7 +28,7 @@ const Cart = () => {
     }
   };
 
-  const subtotal = cart?.items?.reduce((sum, item) => sum + (item.product.price * item.quantity), 0) || 0;
+  const subtotal = cart?.items?.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 0)), 0) || 0;
   const shipping = subtotal > 0 ? 5.99 : 0;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
@@ -69,7 +69,7 @@ const Cart = () => {
           <div className="p-6 border-b">
             <h1 className="text-3xl font-bold text-gray-800">Your Shopping Cart</h1>
             <p className="text-gray-600">
-              {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your cart
+              {cart.totalItems || 0} {cart.totalItems === 1 ? 'item' : 'items'} in your cart
             </p>
           </div>
 
@@ -77,7 +77,8 @@ const Cart = () => {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               <div className="space-y-6">
-                {cart.items.map((item) => (
+                {cart.items?.map((item) => (
+                  item ? (
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -86,30 +87,30 @@ const Cart = () => {
                   >
                     <div className="flex-shrink-0">
                       <img
-                        src={item?.product?.image}
-                        alt={item.product.name}
+                        src={item?.product?.images?.[0]?.url || '/placeholder-product.jpg'}
+                        alt={item.product?.name || 'Product Image'}
                         className="w-24 h-24 object-cover rounded-lg"
                       />
                     </div>
 
                     <div className="ml-4 flex-grow">
-                      <h3 className="text-lg font-semibold text-gray-800">{item.product.name}</h3>
-                      <p className="text-green font-medium">₹{item.product.price.toFixed(2)}</p>
-                      <p className="text-sm text-gray-500">{item.product.category}</p>
+                      <h3 className="text-lg font-semibold text-gray-800">{item.product?.name || 'Unknown Product'}</h3>
+                      <p className="text-green font-medium">₹{(item.price || 0).toFixed(2)}</p>
+                      <p className="text-sm text-gray-500">{item.product?.category || ''}</p>
                     </div>
 
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center border rounded-lg">
                         <button
-                          onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                          onClick={() => handleUpdateQuantity(item._id, (item.quantity || 0) - 1)}
                           disabled={updatingItemId === item._id}
                           className="p-2 hover:bg-gray-100 disabled:opacity-50"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="px-4 py-2">{item.quantity}</span>
+                        <span className="px-4 py-2">{item.quantity || 0}</span>
                         <button
-                          onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
+                          onClick={() => handleUpdateQuantity(item._id, (item.quantity || 0) + 1)}
                           disabled={updatingItemId === item._id}
                           className="p-2 hover:bg-gray-100 disabled:opacity-50"
                         >
@@ -118,7 +119,7 @@ const Cart = () => {
                       </div>
 
                       <div className="font-semibold text-gray-800">
-                        ₹{(item.product.price * item.quantity).toFixed(2)}
+                        ₹{((item.price || 0) * (item.quantity || 0)).toFixed(2)}
                       </div>
 
                       <button
@@ -129,7 +130,8 @@ const Cart = () => {
                       </button>
                     </div>
                   </motion.div>
-                ))}
+                ) : null
+              ))}
               </div>
 
               <div className="mt-8 flex justify-between items-center">

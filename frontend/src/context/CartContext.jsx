@@ -3,7 +3,16 @@ import api from '../utils/api';
 import toast from 'react-hot-toast';
 import { useAuth } from './AuthContext';
 
-const CartContext = createContext({});
+const CartContext = createContext({
+  cart: null,
+  loading: false,
+  cartItemsCount: 0,
+  addToCart: () => {},
+  updateCartItem: () => {},
+  removeFromCart: () => {},
+  clearCart: () => {},
+  fetchCart: () => {},
+});
 
 export const useCart = () => useContext(CartContext);
 
@@ -15,6 +24,8 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchCart();
+    } else {
+      setCart(null);
     }
   }, [isAuthenticated]);
 
@@ -23,9 +34,9 @@ export const CartProvider = ({ children }) => {
       setLoading(true);
       const response = await api.get('/cart');
       setCart(response.data.data);
-      console.log(response.data)
     } catch (error) {
       console.error('Error fetching cart:', error.message);
+      setCart(null);
     } finally {
       setLoading(false);
     }
@@ -82,6 +93,9 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // Compute cart items count
+  const cartItemsCount = cart?.totalItems || 0;
+
   const value = {
     cart,
     loading,
@@ -90,7 +104,7 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     clearCart,
     fetchCart,
-    cartItemsCount: cart?.totalItems || 0,
+    cartItemsCount,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

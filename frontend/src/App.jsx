@@ -13,6 +13,7 @@ import Contact from './pages/Contact';
 import Cart from './pages/Cart';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
+import ProductDetail from './pages/ProductDetail';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminLayout from './pages/admin/AdminLayout';
@@ -117,6 +118,15 @@ function App() {
                 } />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/product/:id" element={
+                  <div className="flex flex-col min-h-screen">
+                    <Navbar />
+                    <main className="flex-grow">
+                      <ProductDetail />
+                    </main>
+                    <Footer />
+                  </div>
+                } />
               </Routes>
               <Toaster
                 position="top-right"

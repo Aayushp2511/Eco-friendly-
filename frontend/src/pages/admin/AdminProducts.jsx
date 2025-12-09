@@ -46,7 +46,6 @@ const AdminProducts = () => {
       const res = await api.get('/admin/products?limit=100');
       return res.data.data;
     },
-    refetchInterval: 3000, // Real-time updates
   });
 
   const createMutation = useMutation({
