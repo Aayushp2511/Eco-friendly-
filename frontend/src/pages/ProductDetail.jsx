@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ShoppingCart, Heart, Star, Package, Truck, Shield } from 'lucide-react';
+import { ShoppingCart, Heart, Star, Package, Truck, Shield, Leaf, CheckCircle, ArrowRightLeft, XCircle, Gauge, Lightbulb, Dot } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -318,6 +318,136 @@ const ProductDetail = () => {
                   </dl>
                 </div>
               </div>
+              
+              {/* Environmental Impact Section */}
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Environmental Impact</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Environmental Benefits */}
+                  <div className="bg-green/5 rounded-xl p-6 border border-green/10">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <Leaf className="h-5 w-5 text-green mr-2" />
+                      Environmental Benefits
+                    </h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          {getEnvironmentalBenefit(product.category, 'benefit')}
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Reduces carbon footprint by approximately {getCarbonFootprintReduction(product.ecoScore)}% compared to conventional alternatives
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Made from {getSustainableMaterials(product.specifications)}
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          {isBiodegradable(product.tags) ? 'Biodegradable and compostable' : 'Durable and long-lasting to reduce waste'}
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Comparison with Conventional Products */}
+                  <div className="bg-blue/5 rounded-xl p-6 border border-blue/10">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                      <ArrowRightLeft className="h-5 w-5 text-blue mr-2" />
+                      Better Than Conventional Products
+                    </h3>
+                    <ul className="space-y-3">
+                      <li className="flex items-start">
+                        <XCircle className="h-5 w-5 text-red mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Unlike conventional {getConventionalAlternative(product.category)}, this product is designed for sustainability
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-5 w-5 text-red mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          No harmful chemicals or toxins that pollute the environment
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-5 w-5 text-red mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          {getWasteReductionInfo(product.category)}
+                        </span>
+                      </li>
+                      <li className="flex items-start">
+                        <XCircle className="h-5 w-5 text-red mt-0.5 mr-2 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Supports ethical manufacturing and fair trade practices
+                        </span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                {/* Carbon Footprint Visualization */}
+                <div className="mt-8 bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Gauge className="h-5 w-5 text-primary mr-2" />
+                    Estimated Carbon Footprint Savings
+                  </h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">Conventional Product</span>
+                    <span className="text-sm text-gray-600">Eco-Friendly Alternative</span>
+                  </div>
+                  <div className="relative h-6 bg-gradient-to-r from-red-100 to-green-100 rounded-full overflow-hidden">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-red-200 rounded-full"
+                      style={{ width: '100%' }}
+                    ></div>
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-green-500 rounded-full"
+                      style={{ width: `${100 - getCarbonFootprintReduction(product.ecoScore)}%` }}
+                    ></div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="text-lg font-semibold text-gray-900">
+                      This product reduces CO₂ emissions by approximately {getCarbonFootprintReduction(product.ecoScore)}%
+                    </p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      By choosing this eco-friendly product, you're helping to create a more sustainable future
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Eco Tips */}
+                <div className="mt-8 bg-teal/5 rounded-xl p-6 border border-teal/10">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Lightbulb className="h-5 w-5 text-teal mr-2" />
+                    Eco Tips
+                  </h3>
+                  <p className="text-gray-700 mb-3">
+                    Maximize the environmental benefits of your purchase:
+                  </p>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start">
+                      <Dot className="h-5 w-5 text-teal mt-0.5 mr-2 flex-shrink-0" />
+                      Use this product for its intended lifespan to maximize environmental benefits
+                    </li>
+                    <li className="flex items-start">
+                      <Dot className="h-5 w-5 text-teal mt-0.5 mr-2 flex-shrink-0" />
+                      Properly dispose of or recycle at the end of its life
+                    </li>
+                    <li className="flex items-start">
+                      <Dot className="h-5 w-5 text-teal mt-0.5 mr-2 flex-shrink-0" />
+                      Share with friends to spread awareness about sustainable choices
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -325,5 +455,75 @@ const ProductDetail = () => {
     </div>
   );
 };
+
+// Helper functions for environmental information
+function getEnvironmentalBenefit(category, type) {
+  const benefits = {
+    'Reusable Products': 'Eliminates single-use plastic waste',
+    'Organic Foods': 'Reduces pesticide and chemical runoff into ecosystems',
+    'Eco-Friendly Home': 'Improves indoor air quality and reduces toxic chemicals',
+    'Sustainable Fashion': 'Reduces water consumption and chemical pollution',
+    'Zero Waste': 'Minimizes landfill contributions and promotes circular economy',
+    'Natural Beauty': 'Avoids harmful chemicals that damage aquatic ecosystems',
+    'Green Tech': 'Utilizes renewable energy sources to reduce fossil fuel dependence',
+    'Other': 'Provides sustainable alternatives to conventional products'
+  };
+  
+  return benefits[category] || 'Reduces environmental impact compared to conventional alternatives';
+}
+
+function getCarbonFootprintReduction(ecoScore) {
+  // Convert ecoScore (0-100) to estimated carbon footprint reduction percentage
+  return Math.min(90, Math.max(30, ecoScore * 0.7)).toFixed(0);
+}
+
+function getSustainableMaterials(specifications) {
+  if (!specifications) return 'sustainable materials';
+  
+  // Handle both Map-like objects and plain objects
+  const material = specifications.get ? 
+    specifications.get('Material') || specifications.get('material') :
+    specifications['Material'] || specifications['material'];
+    
+  if (material) return material.toLowerCase();
+  
+  return 'eco-friendly materials';
+}
+
+function isBiodegradable(tags) {
+  if (!tags) return false;
+  const biodegradableTerms = ['biodegradable', 'compostable', 'natural', 'organic'];
+  return tags.some(tag => biodegradableTerms.includes(tag.toLowerCase()));
+}
+
+function getConventionalAlternative(category) {
+  const alternatives = {
+    'Reusable Products': 'disposable plastic items',
+    'Organic Foods': 'conventionally grown produce',
+    'Eco-Friendly Home': 'chemical-based household products',
+    'Sustainable Fashion': 'fast fashion items',
+    'Zero Waste': 'single-use packaging',
+    'Natural Beauty': 'chemical-laden cosmetics',
+    'Green Tech': 'non-renewable energy devices',
+    'Other': 'standard consumer goods'
+  };
+  
+  return alternatives[category] || 'traditional products';
+}
+
+function getWasteReductionInfo(category) {
+  const info = {
+    'Reusable Products': 'Designed for hundreds of uses, eliminating single-use waste',
+    'Organic Foods': 'Reduces food waste through sustainable farming practices',
+    'Eco-Friendly Home': 'Concentrated formulas reduce packaging waste',
+    'Sustainable Fashion': 'Timeless designs reduce textile waste from trends',
+    'Zero Waste': 'Refillable systems eliminate disposable packaging',
+    'Natural Beauty': 'Minimalist packaging reduces plastic waste',
+    'Green Tech': 'Energy-efficient operation reduces electricity waste',
+    'Other': 'Thoughtful design minimizes resource consumption'
+  };
+  
+  return info[category] || 'Reduces waste through sustainable design and materials';
+}
 
 export default ProductDetail;

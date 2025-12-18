@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Leaf, ShoppingBag, Truck, Shield, Users, TrendingUp } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import Button from '../components/common/Button';
+import ProductCard from '../components/product/ProductCard';
+import api from '../utils/api';
+import Loading from '../components/common/Loading';
 
 const Home = () => {
   const features = [
@@ -34,6 +38,15 @@ const Home = () => {
     { value: '100%', label: 'Carbon Neutral' }
   ];
 
+  // Fetch featured products
+  const { data: featuredProducts, isLoading: loadingFeatured } = useQuery({
+    queryKey: ['featuredProducts'],
+    queryFn: async () => {
+      const response = await api.get('/products?featured=true&limit=4');
+      return response.data;
+    },
+  });
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -54,12 +67,21 @@ const Home = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/shop">
-                  <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
+                  <Button 
+                    size="lg" 
+                    className="bg-black text-primary hover:bg-primary/100 font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <ShoppingBag className="h-5 w-5 mr-2" />
                     Shop Now
                   </Button>
                 </Link>
                 <Link to="/about">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="border-white text-white hover:bg-white/20 font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <Leaf className="h-5 w-5 mr-2" />
                     Learn More
                   </Button>
                 </Link>
@@ -91,6 +113,52 @@ const Home = () => {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl md:text-4xl font-bold text-gray-800 mb-4"
+            >
+              Featured Eco Products
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
+            >
+              Discover our most popular sustainable products loved by our community
+            </motion.p>
+          </div>
+
+          {loadingFeatured ? (
+            <div className="py-12">
+              <Loading size="lg" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts?.data?.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
+            <Link to="/shop">
+              <Button 
+                size="lg" 
+                className="bg-primary text-white hover:bg-primary/90 font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+              >
+                View All Products
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -217,7 +285,10 @@ const Home = () => {
               Join our community of conscious consumers and start your sustainable journey today.
             </p>
             <Link to="/shop">
-              <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
+              <Button 
+                size="lg" 
+                className="bg-white text-primary hover:bg-gray-100 font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+              >
                 <ShoppingBag className="h-5 w-5 mr-2" />
                 Start Shopping
               </Button>
